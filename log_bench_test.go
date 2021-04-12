@@ -3,7 +3,7 @@ package logging
 import "testing"
 
 func Benchmark_debug_at_error_level(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError, map[string]interface{}{}))
+	log := NewLog(newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -12,7 +12,7 @@ func Benchmark_debug_at_error_level(b *testing.B) {
 }
 
 func Benchmark_error_at_error_level(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError, map[string]interface{}{}))
+	log := NewLog(newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -21,7 +21,7 @@ func Benchmark_error_at_error_level(b *testing.B) {
 }
 
 func Benchmark_debug_at_error_level_1000x(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError, map[string]interface{}{}))
+	log := NewLog(newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -32,7 +32,7 @@ func Benchmark_debug_at_error_level_1000x(b *testing.B) {
 }
 
 func Benchmark_error_at_error_level_1000x(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError, map[string]interface{}{}))
+	log := NewLog(newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -43,7 +43,7 @@ func Benchmark_error_at_error_level_1000x(b *testing.B) {
 }
 
 func Benchmark_NewLog(b *testing.B) {
-	config := NewConfig(LevelError, map[string]interface{}{})
+	config := NewConfig(LevelError)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -52,7 +52,7 @@ func Benchmark_NewLog(b *testing.B) {
 }
 
 func Benchmark_ConfigCopy_NewLog(b *testing.B) {
-	config := NewConfig(LevelError, map[string]interface{}{})
+	config := NewConfig(LevelError)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

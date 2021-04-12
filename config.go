@@ -45,10 +45,10 @@ type Config struct {
 	globalTags map[string]interface{}
 }
 
-func NewConfig(level Level, globalTags map[string]interface{}) *Config {
+func NewConfig(level Level) *Config {
 	cfg := &Config{
 		level:      level,
-		globalTags: globalTags,
+		globalTags: map[string]interface{}{},
 	}
 
 	cfg.logger = newLogrusLogger(cfg)
