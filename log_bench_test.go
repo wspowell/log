@@ -1,6 +1,9 @@
 package logging
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func Benchmark_debug_at_error_level(b *testing.B) {
 	log := NewLog(newTestConfig(LevelError))
@@ -8,6 +11,15 @@ func Benchmark_debug_at_error_level(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		log.Debug("hello: %s", "world")
+	}
+}
+
+func Benchmark_debug_at_error_level_with_complex_parameters(b *testing.B) {
+	log := NewLog(newTestConfig(LevelError))
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		log.Debug(fmt.Sprintf("hello: %s", "world"))
 	}
 }
 
