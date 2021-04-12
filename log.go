@@ -5,6 +5,7 @@ import "github.com/sirupsen/logrus"
 type Logger interface {
 	Tag(name string, value interface{})
 	Printf(format string, v ...interface{})
+	Trace(format string, v ...interface{})
 	Debug(format string, v ...interface{})
 	Info(format string, v ...interface{})
 	Warn(format string, v ...interface{})
@@ -18,6 +19,8 @@ type baseLog struct {
 	cfg  Configer
 	tags logrus.Fields
 }
+
+var _ Logger = (*Log)(nil)
 
 // Perf: Log value receivers performed better.
 type Log struct {
@@ -54,6 +57,17 @@ func (self Log) Tag(name string, value interface{}) {
 	self.tags[name] = value
 }
 
+func (self Log) Printf(format string, v ...interface{}) {
+	// Log at INFO to match logrus.
+	if LevelInfo >= self.level {
+		self.printf(format, v...)
+	}
+}
+
+func (self Log) printf(format string, v ...interface{}) {
+	self.logger.WithFields(self.tags).WithFields(self.cfg.Tags()).Printf(format, v...)
+}
+
 func (self Log) Trace(format string, v ...interface{}) {
 	if LevelTrace >= self.level {
 		self.trace(format, v...)
@@ -73,17 +87,6 @@ func (self Log) Debug(format string, v ...interface{}) {
 
 func (self Log) debug(format string, v ...interface{}) {
 	self.logger.WithFields(self.tags).WithFields(self.cfg.Tags()).Debugf(format, v...)
-}
-
-func (self Log) Printf(format string, v ...interface{}) {
-	// Log at INFO to match logrus.
-	if LevelInfo >= self.level {
-		self.printf(format, v...)
-	}
-}
-
-func (self Log) printf(format string, v ...interface{}) {
-	self.logger.WithFields(self.tags).WithFields(self.cfg.Tags()).Printf(format, v...)
 }
 
 func (self Log) Info(format string, v ...interface{}) {
