@@ -37,6 +37,7 @@ type Configer interface {
 	// Therefore, these tags are global and must not be altered.
 	Tags() map[string]interface{}
 	Out() io.Writer
+	Logger() Logger
 }
 
 type Config struct {
@@ -66,6 +67,10 @@ func (self *Config) Tags() map[string]interface{} {
 
 func (self *Config) Out() io.Writer {
 	return os.Stdout
+}
+
+func (self *Config) Logger() Logger {
+	return NewLog(self)
 }
 
 func newLogrusLogger(cfg Configer) *logrus.Logger {
