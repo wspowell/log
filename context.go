@@ -45,7 +45,7 @@ func Printf(ctx local.Context, format string, v ...interface{}) {
 	// Log at INFO to match logrus.
 	if shouldLog(ctx, LevelInfo) {
 		if log := fromContext(ctx); log != nil {
-			log.Printf(format, v)
+			log.Printf(format, v...)
 		}
 	}
 
@@ -54,7 +54,7 @@ func Printf(ctx local.Context, format string, v ...interface{}) {
 func Trace(ctx local.Context, format string, v ...interface{}) {
 	if shouldLog(ctx, LevelTrace) {
 		if log := fromContext(ctx); log != nil {
-			log.Trace(format, v)
+			log.Trace(format, v...)
 		}
 	}
 }
@@ -62,7 +62,7 @@ func Trace(ctx local.Context, format string, v ...interface{}) {
 func Debug(ctx local.Context, format string, v ...interface{}) {
 	if shouldLog(ctx, LevelDebug) {
 		if log := fromContext(ctx); log != nil {
-			log.Debug(format, v)
+			log.Debug(format, v...)
 		}
 	}
 }
@@ -70,7 +70,7 @@ func Debug(ctx local.Context, format string, v ...interface{}) {
 func Info(ctx local.Context, format string, v ...interface{}) {
 	if shouldLog(ctx, LevelInfo) {
 		if log := fromContext(ctx); log != nil {
-			log.Info(format, v)
+			log.Info(format, v...)
 		}
 	}
 }
@@ -78,7 +78,7 @@ func Info(ctx local.Context, format string, v ...interface{}) {
 func Warn(ctx local.Context, format string, v ...interface{}) {
 	if shouldLog(ctx, LevelWarn) {
 		if log := fromContext(ctx); log != nil {
-			log.Warn(format, v)
+			log.Warn(format, v...)
 		}
 	}
 }
@@ -86,7 +86,7 @@ func Warn(ctx local.Context, format string, v ...interface{}) {
 func Error(ctx local.Context, format string, v ...interface{}) {
 	if shouldLog(ctx, LevelError) {
 		if log := fromContext(ctx); log != nil {
-			log.Error(format, v)
+			log.Error(format, v...)
 		}
 	}
 }
@@ -94,7 +94,7 @@ func Error(ctx local.Context, format string, v ...interface{}) {
 func Fatal(ctx local.Context, format string, v ...interface{}) {
 	if shouldLog(ctx, LevelFatal) {
 		if log := fromContext(ctx); log != nil {
-			log.Fatal(format, v)
+			log.Fatal(format, v...)
 		}
 	}
 }
