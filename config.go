@@ -62,7 +62,11 @@ func (self *Config) Level() Level {
 }
 
 func (self *Config) Tags() map[string]interface{} {
-	return self.globalTags
+	clone := make(map[string]interface{}, len(self.globalTags))
+	for key, value := range self.globalTags {
+		clone[key] = value
+	}
+	return clone
 }
 
 func (self *Config) Out() io.Writer {
