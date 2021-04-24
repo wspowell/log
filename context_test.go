@@ -1,70 +1,154 @@
 package logging
 
 import (
+	"io"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/wspowell/local"
+	"github.com/wspowell/context"
 )
 
+type testConfig struct {
+	*Config
+}
+
+func (self *testConfig) Tags() map[string]interface{} {
+	return map[string]interface{}{
+		"global": "global",
+	}
+}
+
+func (self *testConfig) Out() io.Writer {
+	return io.Discard
+}
+
+func (self *testConfig) Logger() Logger {
+	return NewLog(self)
+}
+
+func newTestConfig(level Level) *testConfig {
+	config := NewConfig(level)
+	return &testConfig{
+		Config: config,
+	}
+}
+
 func Test_WithContext(t *testing.T) {
-	ctx := local.NewLocalized()
+	ctx := context.Local()
 
-	WithContext(ctx, NewConfig(LevelDebug))
+	ctx = WithContext(ctx, NewConfig(LevelDebug))
 
-	assert.NotNil(t, fromContext(ctx))
-	assert.IsType(t, Log{}, fromContext(ctx))
+	log, ok := fromContext(ctx, LevelDebug)
+	assert.True(t, ok)
+	assert.NotNil(t, log)
+	assert.IsType(t, Log{}, log)
 }
 
-func Test_WithContext_child(t *testing.T) {
-	ctx := local.NewLocalized()
-
-	WithContext(ctx, NewConfig(LevelDebug))
-
-	assert.NotNil(t, fromContext(ctx))
-	assert.IsType(t, Log{}, fromContext(ctx))
-
-	childCtx := local.FromContext(ctx)
-
-	assert.NotNil(t, fromContext(childCtx))
-	assert.IsType(t, Log{}, fromContext(childCtx))
-}
-
-func Test_Context_Tags(t *testing.T) {
-	ctx := local.NewLocalized()
+func Test_Context_Tags_Localized(t *testing.T) {
+	ctx := context.Local()
 
 	config := newTestConfig(LevelError)
-	config.Tags()["global"] = "global"
 
-	WithContext(ctx, config)
+	ctx = WithContext(ctx, config)
 
 	Tag(ctx, "parent", "parent")
 
-	childCtx := local.FromContext(ctx)
+	parentTags := Tags(ctx)
 
-	Tag(childCtx, "test1", "value1")
-	Tag(childCtx, "test2", "value2")
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func(boundaryCtx context.Context) {
+		defer wg.Done()
 
-	cfg, ok := childCtx.Value(configContextKey{}).(Configer)
+		// Use localized Logger.
+		childCtx := context.Localize(boundaryCtx)
+
+		Tag(childCtx, "test1", "value1")
+		Tag(childCtx, "test2", "value2")
+
+		cfg, ok := childCtx.Value(configContextKey{}).(Configer)
+		assert.True(t, ok)
+		if value, ok := cfg.Tags()["global"]; !ok || value != "global" {
+			t.Error("missing global tag")
+		}
+
+		childTags := Tags(childCtx)
+		if &childTags == &parentTags {
+			t.Error("child tags must not address the same parent tags")
+		}
+
+		log, ok := fromContext(childCtx, LevelError)
+		assert.True(t, ok)
+		if value, ok := log.Tags()["global"]; ok || value == "global" {
+			t.Error("global tag should not exist")
+		}
+		if value, ok := log.Tags()["parent"]; !ok || value != "parent" {
+			t.Error("missing parent tag")
+		}
+		if value, ok := log.Tags()["test1"]; !ok || value != "value1" {
+			t.Error("missing test1 tag")
+		}
+		if value, ok := log.Tags()["test2"]; !ok || value != "value2" {
+			t.Error("missing test2 tag")
+		}
+
+		// Override Log explicitly.
+		childCtx = WithContext(childCtx, config)
+
+		Tag(childCtx, "test1", "value1")
+		Tag(childCtx, "test2", "value2")
+
+		cfg, ok = childCtx.Value(configContextKey{}).(Configer)
+		assert.True(t, ok)
+		if value, ok := cfg.Tags()["global"]; !ok || value != "global" {
+			t.Error("missing global tag")
+		}
+
+		ovrrideTags := Tags(childCtx)
+		if &ovrrideTags == &parentTags {
+			t.Error("override tags must not address the same parent tags")
+		}
+		if &ovrrideTags == &childTags {
+			t.Error("override tags must not address the same child tags")
+		}
+
+		log, ok = fromContext(childCtx, LevelError)
+		assert.True(t, ok)
+		if value, ok := log.Tags()["global"]; ok || value == "global" {
+			t.Error("global tag should not exist")
+		}
+		if value, ok := log.Tags()["parent"]; ok || value == "parent" {
+			t.Error("parent tag should not exist")
+		}
+		if value, ok := log.Tags()["test1"]; !ok || value != "value1" {
+			t.Error("missing test1 tag")
+		}
+		if value, ok := log.Tags()["test2"]; !ok || value != "value2" {
+			t.Error("missing test2 tag")
+		}
+	}(ctx)
+
+	wg.Wait()
+
+	cfg, ok := ctx.Value(configContextKey{}).(Configer)
 	assert.True(t, ok)
-
 	if value, ok := cfg.Tags()["global"]; !ok || value != "global" {
 		t.Error("missing global tag")
 	}
 
-	if value, ok := fromContext(ctx).(Log).tags["parent"]; !ok || value != "parent" {
+	log, ok := fromContext(ctx, LevelError)
+	assert.True(t, ok)
+	if value, ok := log.Tags()["global"]; ok || value == "global" {
+		t.Error("global tag should not exist")
+	}
+	if value, ok := log.Tags()["parent"]; !ok || value != "parent" {
 		t.Error("missing parent tag")
 	}
-
-	if value, ok := fromContext(childCtx).(Log).tags["parent"]; ok || value == "parent" {
-		t.Error("parent tag should not exist")
+	if value, ok := log.Tags()["test1"]; ok || value == "value1" {
+		t.Error("test1 tag should not exist")
 	}
-
-	if value, ok := fromContext(childCtx).(Log).tags["test1"]; !ok || value != "value1" {
-		t.Error("missing test1 tag")
-	}
-
-	if value, ok := fromContext(childCtx).(Log).tags["test2"]; !ok || value != "value2" {
-		t.Error("missing test2 tag")
+	if value, ok := log.Tags()["test2"]; ok || value == "value2" {
+		t.Error("test2 tag should not exist")
 	}
 }

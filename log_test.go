@@ -1,29 +1,9 @@
 package logging
 
 import (
-	"io"
 	"sync"
 	"testing"
 )
-
-type testConfig struct {
-	*Config
-}
-
-func (self *testConfig) Out() io.Writer {
-	return io.Discard
-}
-
-func (self *testConfig) Logger() Logger {
-	return NewLog(self)
-}
-
-func newTestConfig(level Level) *testConfig {
-	config := NewConfig(level)
-	return &testConfig{
-		Config: config,
-	}
-}
 
 func Test_Log_GlobalTags_race(t *testing.T) {
 	cfg := newTestConfig(LevelError)

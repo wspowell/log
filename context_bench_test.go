@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/wspowell/local"
+	"github.com/wspowell/context"
 )
 
 func Benchmark_Context_debug_at_error_level(b *testing.B) {
-	ctx := local.NewLocalized()
-	WithContext(ctx, newTestConfig(LevelError))
+	ctx := context.Local()
+	ctx = WithContext(ctx, newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -18,8 +18,8 @@ func Benchmark_Context_debug_at_error_level(b *testing.B) {
 }
 
 func Benchmark_Context_debug_at_error_level_with_complex_parameters(b *testing.B) {
-	ctx := local.NewLocalized()
-	WithContext(ctx, newTestConfig(LevelError))
+	ctx := context.Local()
+	ctx = WithContext(ctx, newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -28,8 +28,8 @@ func Benchmark_Context_debug_at_error_level_with_complex_parameters(b *testing.B
 }
 
 func Benchmark_Context_error_at_error_level(b *testing.B) {
-	ctx := local.NewLocalized()
-	WithContext(ctx, newTestConfig(LevelError))
+	ctx := context.Local()
+	ctx = WithContext(ctx, newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -38,8 +38,8 @@ func Benchmark_Context_error_at_error_level(b *testing.B) {
 }
 
 func Benchmark_Context_debug_at_error_level_1000x(b *testing.B) {
-	ctx := local.NewLocalized()
-	WithContext(ctx, newTestConfig(LevelError))
+	ctx := context.Local()
+	ctx = WithContext(ctx, newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -50,8 +50,8 @@ func Benchmark_Context_debug_at_error_level_1000x(b *testing.B) {
 }
 
 func Benchmark_Context_error_at_error_level_1000x(b *testing.B) {
-	ctx := local.NewLocalized()
-	WithContext(ctx, newTestConfig(LevelError))
+	ctx := context.Local()
+	ctx = WithContext(ctx, newTestConfig(LevelError))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -66,16 +66,6 @@ func Benchmark_Context_WithContext(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		WithContext(local.NewLocalized(), config)
-	}
-}
-
-func Benchmark_Context_WithContext_FromContext(b *testing.B) {
-	ctx := local.NewLocalized()
-	WithContext(ctx, newTestConfig(LevelError))
-
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		local.FromContext(ctx)
+		WithContext(context.Local(), config)
 	}
 }

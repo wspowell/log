@@ -1,100 +1,110 @@
 package logging
 
 import (
-	"github.com/wspowell/local"
+	"github.com/wspowell/context"
 )
 
-type logLevelContextKey struct{}
 type configContextKey struct{}
+type levelContextKey struct{}
 type logContextKey struct{}
 
-func WithContext(ctx local.Context, config Configer) {
-	local.WithValue(ctx, configContextKey{}, config)
-	local.WithValue(ctx, logLevelContextKey{}, config.Level())
+// WithConfig adds a Configer to the Context which enables new Loggers to be created.
+// This creates a new Logger from the Configer and adds it as a local Context value.
+func WithContext(ctx context.Context, config Configer) context.Context {
+	ctx = context.WithValue(ctx, configContextKey{}, config)
+	ctx = context.WithValue(ctx, levelContextKey{}, config.Level())
+	withLogger(ctx, config.Logger())
+	return ctx
 }
 
-func shouldLog(ctx local.Context, logLevel Level) bool {
-	if configLevel, ok := ctx.Value(logLevelContextKey{}).(Level); ok {
-		return logLevel >= configLevel
+func withLogger(ctx context.Context, logger Logger) {
+	// Logger is localized to the context so it guarantees a data race cannot occur.
+	context.WithLocalValue(ctx, logContextKey{}, logger)
+}
+
+func fromContext(ctx context.Context, logLevel Level) (Logger, bool) {
+	if configLevel, ok := ctx.Value(levelContextKey{}).(Level); ok {
+		if logLevel < configLevel {
+			return nil, false
+		}
+
+		return getLogger(ctx)
 	}
-	return false
+
+	return nil, false
 }
 
-func fromContext(ctx local.Context) Logger {
+func getLogger(ctx context.Context) (Logger, bool) {
 	if log, ok := ctx.Value(logContextKey{}).(Logger); ok {
-		return log
+		return log, true
 	}
 
-	if config, ok := ctx.Value(configContextKey{}).(Configer); ok {
-		// Logger is localized to the context so it guarantees a data race cannot occur.
-		log := config.Logger()
-		ctx.Localize(logContextKey{}, log)
-		return log
-	}
-
-	return nil
+	return newLogger(ctx)
 }
 
-func Tag(ctx local.Context, name string, value interface{}) {
-	if log := fromContext(ctx); log != nil {
+func newLogger(ctx context.Context) (Logger, bool) {
+	// Create new Logger from the Configer, if present.
+	if config, ok := ctx.Value(configContextKey{}).(Configer); ok {
+		log := config.Logger()
+		withLogger(ctx, log)
+		return log, true
+	}
+
+	return nil, false
+}
+
+func Tag(ctx context.Context, name string, value interface{}) {
+	if log, ok := fromContext(ctx, LevelPanic); ok {
 		log.Tag(name, value)
 	}
 }
 
-func Printf(ctx local.Context, format string, v ...interface{}) {
+func Tags(ctx context.Context) map[string]interface{} {
+	if log, ok := fromContext(ctx, LevelPanic); ok {
+		return log.Tags()
+	}
+	return nil
+}
+
+func Printf(ctx context.Context, format string, v ...interface{}) {
 	// Log at INFO to match logrus.
-	if shouldLog(ctx, LevelInfo) {
-		if log := fromContext(ctx); log != nil {
-			log.Printf(format, v...)
-		}
-	}
-
-}
-
-func Trace(ctx local.Context, format string, v ...interface{}) {
-	if shouldLog(ctx, LevelTrace) {
-		if log := fromContext(ctx); log != nil {
-			log.Trace(format, v...)
-		}
+	if log, ok := fromContext(ctx, LevelInfo); ok {
+		log.Printf(format, v...)
 	}
 }
 
-func Debug(ctx local.Context, format string, v ...interface{}) {
-	if shouldLog(ctx, LevelDebug) {
-		if log := fromContext(ctx); log != nil {
-			log.Debug(format, v...)
-		}
+func Trace(ctx context.Context, format string, v ...interface{}) {
+	if log, ok := fromContext(ctx, LevelTrace); ok {
+		log.Trace(format, v...)
 	}
 }
 
-func Info(ctx local.Context, format string, v ...interface{}) {
-	if shouldLog(ctx, LevelInfo) {
-		if log := fromContext(ctx); log != nil {
-			log.Info(format, v...)
-		}
+func Debug(ctx context.Context, format string, v ...interface{}) {
+	if log, ok := fromContext(ctx, LevelDebug); ok {
+		log.Debug(format, v...)
 	}
 }
 
-func Warn(ctx local.Context, format string, v ...interface{}) {
-	if shouldLog(ctx, LevelWarn) {
-		if log := fromContext(ctx); log != nil {
-			log.Warn(format, v...)
-		}
+func Info(ctx context.Context, format string, v ...interface{}) {
+	if log, ok := fromContext(ctx, LevelInfo); ok {
+		log.Info(format, v...)
 	}
 }
 
-func Error(ctx local.Context, format string, v ...interface{}) {
-	if shouldLog(ctx, LevelError) {
-		if log := fromContext(ctx); log != nil {
-			log.Error(format, v...)
-		}
+func Warn(ctx context.Context, format string, v ...interface{}) {
+	if log, ok := fromContext(ctx, LevelWarn); ok {
+		log.Warn(format, v...)
 	}
 }
 
-func Fatal(ctx local.Context, format string, v ...interface{}) {
-	if shouldLog(ctx, LevelFatal) {
-		if log := fromContext(ctx); log != nil {
-			log.Fatal(format, v...)
-		}
+func Error(ctx context.Context, format string, v ...interface{}) {
+	if log, ok := fromContext(ctx, LevelError); ok {
+		log.Error(format, v...)
+	}
+}
+
+func Fatal(ctx context.Context, format string, v ...interface{}) {
+	if log, ok := fromContext(ctx, LevelFatal); ok {
+		log.Fatal(format, v...)
 	}
 }
