@@ -1,4 +1,4 @@
-module github.com/wspowell/logging
+module github.com/wspowell/log
 
 go 1.16
 
