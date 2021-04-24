@@ -4,6 +4,7 @@ import "github.com/sirupsen/logrus"
 
 type Logger interface {
 	Tag(name string, value interface{})
+	Tags() map[string]interface{}
 	Printf(format string, v ...interface{})
 	Trace(format string, v ...interface{})
 	Debug(format string, v ...interface{})
@@ -55,6 +56,16 @@ func NewLog(cfg Configer) Log {
 
 func (self Log) Tag(name string, value interface{}) {
 	self.tags[name] = value
+}
+
+// Tags cloned value.
+// Returns tags for the Logger only, not the Configer.
+func (self Log) Tags() map[string]interface{} {
+	clone := make(map[string]interface{}, len(self.tags))
+	for key, value := range self.tags {
+		clone[key] = value
+	}
+	return clone
 }
 
 func (self Log) Printf(format string, v ...interface{}) {
@@ -137,4 +148,15 @@ func (self Log) Panic(format string, v ...interface{}) {
 
 func (self Log) panic(format string, v ...interface{}) {
 	self.logger.WithFields(self.tags).WithFields(self.cfg.Tags()).Panicf(format, v...)
+}
+
+// Localize Log to the next Context. Called in context.Localize().
+// This will copy all log tags on to the localized Log value.
+// If a fresh Logger is desired, use WithContext() to override.
+func (self Log) Localize() interface{} {
+	clone := self.baseLog.cfg.Logger()
+	for key, value := range self.tags {
+		clone.Tag(key, value)
+	}
+	return clone
 }
