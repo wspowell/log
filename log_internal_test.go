@@ -63,6 +63,4 @@ func Test_Log_Tags_nil(t *testing.T) {
 	if value, ok := log.tags["test2"]; !ok || value != "value2" {
 		t.Fail()
 	}
-
-	log.Error("test")
 }
