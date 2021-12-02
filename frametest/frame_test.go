@@ -56,7 +56,7 @@ func Test_Log_Error_NonContext(t *testing.T) {
 	logger.Error("error: %s", "test")
 
 	// Log minus the timestamp.
-	expectedLog := `level=error msg="error: test" function=github.com/wspowell/log/frametest.Test_Log_Error_NonContext global=global test1=value1 test2=value2` + "\n"
+	expectedLog := `level=error msg="error: test" function=github.com/wspowell/log/frametest_test.Test_Log_Error_NonContext global=global test1=value1 test2=value2` + "\n"
 
 	assert.True(t, strings.HasSuffix(cfg.logCapture.String(), expectedLog), "actual: %s", cfg.logCapture.String())
 }
@@ -74,7 +74,7 @@ func Test_Log_Error_Context(t *testing.T) {
 	log.Error(ctx, "error: %s", "test")
 
 	// Log minus the timestamp.
-	expectedLog := `level=error msg="error: test" function=github.com/wspowell/log/frametest.Test_Log_Error_Context global=global test1=value1 test2=value2` + "\n"
+	expectedLog := `level=error msg="error: test" function=github.com/wspowell/log/frametest_test.Test_Log_Error_Context global=global test1=value1 test2=value2` + "\n"
 
 	assert.True(t, strings.HasSuffix(cfg.logCapture.String(), expectedLog), "actual: %s", cfg.logCapture.String())
 }
