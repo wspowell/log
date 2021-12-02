@@ -14,6 +14,7 @@ func WithContext(ctx context.Context, config Configer) context.Context {
 	ctx = context.WithValue(ctx, configContextKey{}, config)
 	ctx = context.WithValue(ctx, levelContextKey{}, config.Level())
 	withLogger(ctx, config.Logger())
+
 	return ctx
 }
 
@@ -47,6 +48,7 @@ func newLogger(ctx context.Context) (Logger, bool) {
 	if config, ok := ctx.Value(configContextKey{}).(Configer); ok {
 		log := config.Logger()
 		withLogger(ctx, log)
+
 		return log, true
 	}
 
@@ -63,6 +65,7 @@ func Tags(ctx context.Context) map[string]interface{} {
 	if log, ok := fromContext(ctx, LevelPanic); ok {
 		return log.Tags()
 	}
+
 	return nil
 }
 
@@ -73,36 +76,42 @@ func Printf(ctx context.Context, format string, v ...interface{}) {
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func Trace(ctx context.Context, format string, v ...interface{}) {
 	if log, ok := fromContext(ctx, LevelTrace); ok {
 		log.Trace(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func Debug(ctx context.Context, format string, v ...interface{}) {
 	if log, ok := fromContext(ctx, LevelDebug); ok {
 		log.Debug(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func Info(ctx context.Context, format string, v ...interface{}) {
 	if log, ok := fromContext(ctx, LevelInfo); ok {
 		log.Info(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func Warn(ctx context.Context, format string, v ...interface{}) {
 	if log, ok := fromContext(ctx, LevelWarn); ok {
 		log.Warn(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func Error(ctx context.Context, format string, v ...interface{}) {
 	if log, ok := fromContext(ctx, LevelError); ok {
 		log.Error(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func Fatal(ctx context.Context, format string, v ...interface{}) {
 	if log, ok := fromContext(ctx, LevelFatal); ok {
 		log.Fatal(format, v...)

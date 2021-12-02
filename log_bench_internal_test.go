@@ -6,7 +6,7 @@ import (
 )
 
 func Benchmark_debug_at_error_level(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError))
+	log := NewLog(newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -15,7 +15,7 @@ func Benchmark_debug_at_error_level(b *testing.B) {
 }
 
 func Benchmark_debug_at_error_level_with_complex_parameters(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError))
+	log := NewLog(newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -24,7 +24,7 @@ func Benchmark_debug_at_error_level_with_complex_parameters(b *testing.B) {
 }
 
 func Benchmark_error_at_error_level(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError))
+	log := NewLog(newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -33,7 +33,7 @@ func Benchmark_error_at_error_level(b *testing.B) {
 }
 
 func Benchmark_debug_at_error_level_1000x(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError))
+	log := NewLog(newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -44,7 +44,7 @@ func Benchmark_debug_at_error_level_1000x(b *testing.B) {
 }
 
 func Benchmark_error_at_error_level_1000x(b *testing.B) {
-	log := NewLog(newTestConfig(LevelError))
+	log := NewLog(newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

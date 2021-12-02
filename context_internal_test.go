@@ -9,6 +9,13 @@ import (
 	"github.com/wspowell/context"
 )
 
+const (
+	global = "global"
+	parent = "parent"
+	value1 = "value1"
+	value2 = "value2"
+)
+
 type testConfig struct {
 	*Config
 }
@@ -27,14 +34,17 @@ func (self *testConfig) Logger() Logger {
 	return NewLog(self)
 }
 
-func newTestConfig(level Level) *testConfig {
-	config := NewConfig(level)
+func newTestConfig() *testConfig {
+	config := NewConfig(LevelError)
+
 	return &testConfig{
 		Config: config,
 	}
 }
 
 func Test_WithContext(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Local()
 
 	ctx = WithContext(ctx, NewConfig(LevelDebug))
@@ -46,9 +56,11 @@ func Test_WithContext(t *testing.T) {
 }
 
 func Test_Context_Tags_Localized(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Local()
 
-	config := newTestConfig(LevelError)
+	config := newTestConfig()
 
 	ctx = WithContext(ctx, config)
 
@@ -64,12 +76,13 @@ func Test_Context_Tags_Localized(t *testing.T) {
 		// Use localized Logger.
 		childCtx := context.Localize(boundaryCtx)
 
-		Tag(childCtx, "test1", "value1")
-		Tag(childCtx, "test2", "value2")
+		Tag(childCtx, "test1", value1)
+		Tag(childCtx, "test2", value2)
 
 		cfg, ok := childCtx.Value(configContextKey{}).(Configer)
 		assert.True(t, ok)
-		if value, ok := cfg.Tags()["global"]; !ok || value != "global" {
+		var value interface{}
+		if value, ok = cfg.Tags()[global]; !ok || value != global {
 			t.Error("missing global tag")
 		}
 
@@ -80,28 +93,28 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 		log, ok := fromContext(childCtx, LevelError)
 		assert.True(t, ok)
-		if value, ok := log.Tags()["global"]; ok || value == "global" {
+		if value, ok = log.Tags()[global]; ok || value == global {
 			t.Error("global tag should not exist")
 		}
-		if value, ok := log.Tags()["parent"]; !ok || value != "parent" {
+		if value, ok = log.Tags()[parent]; !ok || value != parent {
 			t.Error("missing parent tag")
 		}
-		if value, ok := log.Tags()["test1"]; !ok || value != "value1" {
+		if value, ok = log.Tags()["test1"]; !ok || value != value1 {
 			t.Error("missing test1 tag")
 		}
-		if value, ok := log.Tags()["test2"]; !ok || value != "value2" {
+		if value, ok = log.Tags()["test2"]; !ok || value != value2 {
 			t.Error("missing test2 tag")
 		}
 
 		// Override Log explicitly.
 		childCtx = WithContext(childCtx, config)
 
-		Tag(childCtx, "test1", "value1")
-		Tag(childCtx, "test2", "value2")
+		Tag(childCtx, "test1", value1)
+		Tag(childCtx, "test2", value2)
 
 		cfg, ok = childCtx.Value(configContextKey{}).(Configer)
 		assert.True(t, ok)
-		if value, ok := cfg.Tags()["global"]; !ok || value != "global" {
+		if value, ok = cfg.Tags()[global]; !ok || value != global {
 			t.Error("missing global tag")
 		}
 
@@ -115,16 +128,16 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 		log, ok = fromContext(childCtx, LevelError)
 		assert.True(t, ok)
-		if value, ok := log.Tags()["global"]; ok || value == "global" {
+		if value, ok := log.Tags()[global]; ok || value == global {
 			t.Error("global tag should not exist")
 		}
-		if value, ok := log.Tags()["parent"]; ok || value == "parent" {
+		if value, ok := log.Tags()[parent]; ok || value == parent {
 			t.Error("parent tag should not exist")
 		}
-		if value, ok := log.Tags()["test1"]; !ok || value != "value1" {
+		if value, ok := log.Tags()["test1"]; !ok || value != value1 {
 			t.Error("missing test1 tag")
 		}
-		if value, ok := log.Tags()["test2"]; !ok || value != "value2" {
+		if value, ok := log.Tags()["test2"]; !ok || value != value2 {
 			t.Error("missing test2 tag")
 		}
 	}(ctx)
@@ -133,22 +146,23 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 	cfg, ok := ctx.Value(configContextKey{}).(Configer)
 	assert.True(t, ok)
-	if value, ok := cfg.Tags()["global"]; !ok || value != "global" {
+	var value interface{}
+	if value, ok = cfg.Tags()[global]; !ok || value != global {
 		t.Error("missing global tag")
 	}
 
 	log, ok := fromContext(ctx, LevelError)
 	assert.True(t, ok)
-	if value, ok := log.Tags()["global"]; ok || value == "global" {
+	if value, ok := log.Tags()[global]; ok || value == global {
 		t.Error("global tag should not exist")
 	}
-	if value, ok := log.Tags()["parent"]; !ok || value != "parent" {
+	if value, ok := log.Tags()[parent]; !ok || value != parent {
 		t.Error("missing parent tag")
 	}
-	if value, ok := log.Tags()["test1"]; ok || value == "value1" {
+	if value, ok := log.Tags()["test1"]; ok || value == value1 {
 		t.Error("test1 tag should not exist")
 	}
-	if value, ok := log.Tags()["test2"]; ok || value == "value2" {
+	if value, ok := log.Tags()["test2"]; ok || value == value2 {
 		t.Error("test2 tag should not exist")
 	}
 }

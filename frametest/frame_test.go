@@ -1,6 +1,7 @@
+//go:build !release
 // +build !release
 
-package frametest
+package frametest_test
 
 import (
 	"bytes"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/wspowell/context"
+
 	"github.com/wspowell/log"
 )
 
@@ -21,6 +23,7 @@ type testConfig struct {
 
 func newTestConfig(level log.Level) *testConfig {
 	config := log.NewConfig(level)
+
 	return &testConfig{
 		Config:     config,
 		logCapture: bytes.NewBuffer([]byte{}),
@@ -42,6 +45,8 @@ func (self *testConfig) Logger() log.Logger {
 }
 
 func Test_Log_Error_NonContext(t *testing.T) {
+	t.Parallel()
+
 	cfg := newTestConfig(log.LevelError)
 	logger := log.NewLog(cfg)
 
@@ -57,6 +62,8 @@ func Test_Log_Error_NonContext(t *testing.T) {
 }
 
 func Test_Log_Error_Context(t *testing.T) {
+	t.Parallel()
+
 	cfg := newTestConfig(log.LevelError)
 	ctx := context.Local()
 	ctx = log.WithContext(ctx, cfg)

@@ -9,7 +9,7 @@ import (
 
 func Benchmark_Context_debug_at_error_level(b *testing.B) {
 	ctx := context.Local()
-	ctx = WithContext(ctx, newTestConfig(LevelError))
+	ctx = WithContext(ctx, newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -19,7 +19,7 @@ func Benchmark_Context_debug_at_error_level(b *testing.B) {
 
 func Benchmark_Context_debug_at_error_level_with_complex_parameters(b *testing.B) {
 	ctx := context.Local()
-	ctx = WithContext(ctx, newTestConfig(LevelError))
+	ctx = WithContext(ctx, newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -29,7 +29,7 @@ func Benchmark_Context_debug_at_error_level_with_complex_parameters(b *testing.B
 
 func Benchmark_Context_error_at_error_level(b *testing.B) {
 	ctx := context.Local()
-	ctx = WithContext(ctx, newTestConfig(LevelError))
+	ctx = WithContext(ctx, newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -39,7 +39,7 @@ func Benchmark_Context_error_at_error_level(b *testing.B) {
 
 func Benchmark_Context_debug_at_error_level_1000x(b *testing.B) {
 	ctx := context.Local()
-	ctx = WithContext(ctx, newTestConfig(LevelError))
+	ctx = WithContext(ctx, newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -51,7 +51,7 @@ func Benchmark_Context_debug_at_error_level_1000x(b *testing.B) {
 
 func Benchmark_Context_error_at_error_level_1000x(b *testing.B) {
 	ctx := context.Local()
-	ctx = WithContext(ctx, newTestConfig(LevelError))
+	ctx = WithContext(ctx, newTestConfig())
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

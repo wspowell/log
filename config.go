@@ -66,6 +66,7 @@ func (self *Config) Tags() map[string]interface{} {
 	for key, value := range self.globalTags {
 		clone[key] = value
 	}
+
 	return clone
 }
 

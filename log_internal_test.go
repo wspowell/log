@@ -6,7 +6,9 @@ import (
 )
 
 func Test_Log_GlobalTags_race(t *testing.T) {
-	cfg := newTestConfig(LevelError)
+	t.Parallel()
+
+	cfg := newTestConfig()
 	log := NewLog(cfg)
 
 	wg := &sync.WaitGroup{}
@@ -23,7 +25,9 @@ func Test_Log_GlobalTags_race(t *testing.T) {
 }
 
 func Test_Log_Tags(t *testing.T) {
-	cfg := newTestConfig(LevelError)
+	t.Parallel()
+
+	cfg := newTestConfig()
 	cfg.Tags()["global"] = "global"
 
 	log := NewLog(cfg)
@@ -45,8 +49,9 @@ func Test_Log_Tags(t *testing.T) {
 }
 
 func Test_Log_Tags_nil(t *testing.T) {
-	cfg := newTestConfig(LevelError)
-	log := NewLog(cfg)
+	t.Parallel()
+
+	log := NewLog(NewConfig(LevelError))
 
 	log.Tag("test1", "value1")
 	log.Tag("test2", "value2")
@@ -58,4 +63,6 @@ func Test_Log_Tags_nil(t *testing.T) {
 	if value, ok := log.tags["test2"]; !ok || value != "value2" {
 		t.Fail()
 	}
+
+	log.Error("test")
 }

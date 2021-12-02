@@ -65,6 +65,7 @@ func (self Log) Tags() map[string]interface{} {
 	for key, value := range self.tags {
 		clone[key] = value
 	}
+
 	return clone
 }
 
@@ -75,42 +76,49 @@ func (self Log) Printf(format string, v ...interface{}) {
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func (self Log) Trace(format string, v ...interface{}) {
 	if LevelTrace >= self.level {
 		self.trace(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func (self Log) Debug(format string, v ...interface{}) {
 	if LevelDebug >= self.level {
 		self.debug(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func (self Log) Info(format string, v ...interface{}) {
 	if LevelInfo >= self.level {
 		self.info(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func (self Log) Warn(format string, v ...interface{}) {
 	if LevelWarn >= self.level {
 		self.warn(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func (self Log) Error(format string, v ...interface{}) {
 	if LevelError >= self.level {
 		self.error(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func (self Log) Fatal(format string, v ...interface{}) {
 	if LevelFatal >= self.level {
 		self.fatal(format, v...)
 	}
 }
 
+// nolint:goprintffuncname // reason: keep in line with logger function naming
 func (self Log) Panic(format string, v ...interface{}) {
 	if LevelPanic >= self.level {
 		self.panic(format, v...)
@@ -125,5 +133,6 @@ func (self Log) Localize() interface{} {
 	for key, value := range self.tags {
 		clone.Tag(key, value)
 	}
+
 	return clone
 }
