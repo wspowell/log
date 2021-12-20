@@ -3,15 +3,15 @@ package log
 import "github.com/sirupsen/logrus"
 
 type Logger interface {
-	Tag(name string, value interface{})
-	Tags() map[string]interface{}
-	Printf(format string, v ...interface{})
-	Trace(format string, v ...interface{})
-	Debug(format string, v ...interface{})
-	Info(format string, v ...interface{})
-	Warn(format string, v ...interface{})
-	Error(format string, v ...interface{})
-	Fatal(format string, v ...interface{})
+	Tag(name string, value any)
+	Tags() map[string]any
+	Printf(format string, v ...any)
+	Trace(format string, v ...any)
+	Debug(format string, v ...any)
+	Info(format string, v ...any)
+	Warn(format string, v ...any)
+	Error(format string, v ...any)
+	Fatal(format string, v ...any)
 }
 
 type baseLog struct {
@@ -54,14 +54,14 @@ func NewLog(cfg Configer) Log {
 	}
 }
 
-func (self Log) Tag(name string, value interface{}) {
+func (self Log) Tag(name string, value any) {
 	self.tags[name] = value
 }
 
 // Tags cloned value.
 // Returns tags for the Logger only, not the Configer.
-func (self Log) Tags() map[string]interface{} {
-	clone := make(map[string]interface{}, len(self.tags))
+func (self Log) Tags() map[string]any {
+	clone := make(map[string]any, len(self.tags))
 	for key, value := range self.tags {
 		clone[key] = value
 	}
@@ -69,7 +69,7 @@ func (self Log) Tags() map[string]interface{} {
 	return clone
 }
 
-func (self Log) Printf(format string, v ...interface{}) {
+func (self Log) Printf(format string, v ...any) {
 	// Log at INFO to match logrus.
 	if LevelInfo >= self.level {
 		self.printf(format, v...)
@@ -77,49 +77,49 @@ func (self Log) Printf(format string, v ...interface{}) {
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func (self Log) Trace(format string, v ...interface{}) {
+func (self Log) Trace(format string, v ...any) {
 	if LevelTrace >= self.level {
 		self.trace(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func (self Log) Debug(format string, v ...interface{}) {
+func (self Log) Debug(format string, v ...any) {
 	if LevelDebug >= self.level {
 		self.debug(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func (self Log) Info(format string, v ...interface{}) {
+func (self Log) Info(format string, v ...any) {
 	if LevelInfo >= self.level {
 		self.info(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func (self Log) Warn(format string, v ...interface{}) {
+func (self Log) Warn(format string, v ...any) {
 	if LevelWarn >= self.level {
 		self.warn(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func (self Log) Error(format string, v ...interface{}) {
+func (self Log) Error(format string, v ...any) {
 	if LevelError >= self.level {
 		self.error(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func (self Log) Fatal(format string, v ...interface{}) {
+func (self Log) Fatal(format string, v ...any) {
 	if LevelFatal >= self.level {
 		self.fatal(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func (self Log) Panic(format string, v ...interface{}) {
+func (self Log) Panic(format string, v ...any) {
 	if LevelPanic >= self.level {
 		self.panic(format, v...)
 	}
@@ -128,7 +128,7 @@ func (self Log) Panic(format string, v ...interface{}) {
 // Localize Log to the next Context. Called in context.Localize().
 // This will copy all log tags on to the localized Log value.
 // If a fresh Logger is desired, use WithContext() to override.
-func (self Log) Localize() interface{} {
+func (self Log) Localize() any {
 	clone := self.baseLog.cfg.Logger()
 	for key, value := range self.tags {
 		clone.Tag(key, value)

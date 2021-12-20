@@ -30,8 +30,8 @@ func newTestConfig(level log.Level) *testConfig {
 	}
 }
 
-func (self *testConfig) Tags() map[string]interface{} {
-	return map[string]interface{}{
+func (self *testConfig) Tags() map[string]any {
+	return map[string]any{
 		"global": "global",
 	}
 }

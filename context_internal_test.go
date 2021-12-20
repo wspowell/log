@@ -20,8 +20,8 @@ type testConfig struct {
 	*Config
 }
 
-func (self *testConfig) Tags() map[string]interface{} {
-	return map[string]interface{}{
+func (self *testConfig) Tags() map[string]any {
+	return map[string]any{
 		"global": "global",
 	}
 }
@@ -81,7 +81,7 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 		cfg, ok := childCtx.Value(configContextKey{}).(Configer)
 		assert.True(t, ok)
-		var value interface{}
+		var value any
 		if value, ok = cfg.Tags()[global]; !ok || value != global {
 			t.Error("missing global tag")
 		}
@@ -146,7 +146,7 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 	cfg, ok := ctx.Value(configContextKey{}).(Configer)
 	assert.True(t, ok)
-	var value interface{}
+	var value any
 	if value, ok = cfg.Tags()[global]; !ok || value != global {
 		t.Error("missing global tag")
 	}

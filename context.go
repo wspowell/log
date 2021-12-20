@@ -55,13 +55,13 @@ func newLogger(ctx context.Context) (Logger, bool) {
 	return nil, false
 }
 
-func Tag(ctx context.Context, name string, value interface{}) {
+func Tag(ctx context.Context, name string, value any) {
 	if log, ok := fromContext(ctx, LevelPanic); ok {
 		log.Tag(name, value)
 	}
 }
 
-func Tags(ctx context.Context) map[string]interface{} {
+func Tags(ctx context.Context) map[string]any {
 	if log, ok := fromContext(ctx, LevelPanic); ok {
 		return log.Tags()
 	}
@@ -69,7 +69,7 @@ func Tags(ctx context.Context) map[string]interface{} {
 	return nil
 }
 
-func Printf(ctx context.Context, format string, v ...interface{}) {
+func Printf(ctx context.Context, format string, v ...any) {
 	// Log at INFO to match logrus.
 	if log, ok := fromContext(ctx, LevelInfo); ok {
 		log.Printf(format, v...)
@@ -77,42 +77,42 @@ func Printf(ctx context.Context, format string, v ...interface{}) {
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Trace(ctx context.Context, format string, v ...interface{}) {
+func Trace(ctx context.Context, format string, v ...any) {
 	if log, ok := fromContext(ctx, LevelTrace); ok {
 		log.Trace(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Debug(ctx context.Context, format string, v ...interface{}) {
+func Debug(ctx context.Context, format string, v ...any) {
 	if log, ok := fromContext(ctx, LevelDebug); ok {
 		log.Debug(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Info(ctx context.Context, format string, v ...interface{}) {
+func Info(ctx context.Context, format string, v ...any) {
 	if log, ok := fromContext(ctx, LevelInfo); ok {
 		log.Info(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Warn(ctx context.Context, format string, v ...interface{}) {
+func Warn(ctx context.Context, format string, v ...any) {
 	if log, ok := fromContext(ctx, LevelWarn); ok {
 		log.Warn(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Error(ctx context.Context, format string, v ...interface{}) {
+func Error(ctx context.Context, format string, v ...any) {
 	if log, ok := fromContext(ctx, LevelError); ok {
 		log.Error(format, v...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Fatal(ctx context.Context, format string, v ...interface{}) {
+func Fatal(ctx context.Context, format string, v ...any) {
 	if log, ok := fromContext(ctx, LevelFatal); ok {
 		log.Fatal(format, v...)
 	}

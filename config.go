@@ -35,7 +35,7 @@ type Configer interface {
 	Level() Level
 	// Tags are added to each Logger created.
 	// Therefore, these tags are global and must not be altered.
-	Tags() map[string]interface{}
+	Tags() map[string]any
 	Out() io.Writer
 	Logger() Logger
 }
@@ -43,13 +43,13 @@ type Configer interface {
 type Config struct {
 	logger     *logrus.Logger
 	level      Level
-	globalTags map[string]interface{}
+	globalTags map[string]any
 }
 
 func NewConfig(level Level) *Config {
 	cfg := &Config{
 		level:      level,
-		globalTags: map[string]interface{}{},
+		globalTags: map[string]any{},
 	}
 
 	cfg.logger = newLogrusLogger(cfg)
@@ -61,8 +61,8 @@ func (self *Config) Level() Level {
 	return self.level
 }
 
-func (self *Config) Tags() map[string]interface{} {
-	clone := make(map[string]interface{}, len(self.globalTags))
+func (self *Config) Tags() map[string]any {
+	clone := make(map[string]any, len(self.globalTags))
 	for key, value := range self.globalTags {
 		clone[key] = value
 	}
