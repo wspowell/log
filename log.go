@@ -1,6 +1,8 @@
 package log
 
-import "github.com/sirupsen/logrus"
+import (
+	"github.com/rs/zerolog"
+)
 
 type Logger interface {
 	Tag(name string, value any)
@@ -15,10 +17,9 @@ type Logger interface {
 }
 
 type baseLog struct {
-	logger *logrus.Logger
-
-	cfg  Configer
-	tags logrus.Fields
+	logger zerolog.Logger
+	cfg    Configuration
+	tags   map[string]any
 }
 
 var _ Logger = (*Log)(nil)
@@ -32,13 +33,13 @@ type Log struct {
 	level Level
 }
 
-func NewLog(cfg Configer) Log {
-	if logConfig, ok := cfg.(*Config); ok {
+func NewLog(config Configuration) Log {
+	if logConfig, ok := config.(*Config); ok {
 		return Log{
 			baseLog: &baseLog{
 				logger: logConfig.logger,
-				cfg:    cfg,
-				tags:   logrus.Fields{},
+				cfg:    config,
+				tags:   map[string]any{},
 			},
 			level: logConfig.level,
 		}
@@ -46,11 +47,11 @@ func NewLog(cfg Configer) Log {
 
 	return Log{
 		baseLog: &baseLog{
-			logger: newLogrusLogger(cfg),
-			cfg:    cfg,
-			tags:   logrus.Fields{},
+			logger: newZerologLogger(config),
+			cfg:    config,
+			tags:   map[string]any{},
 		},
-		level: cfg.Level(),
+		level: config.Level(),
 	}
 }
 

@@ -10,7 +10,7 @@ type logContextKey struct{}
 
 // WithConfig adds a Configer to the Context which enables new Loggers to be created.
 // This creates a new Logger from the Configer and adds it as a local Context value.
-func WithContext(ctx context.Context, config Configer) context.Context {
+func WithContext(ctx context.Context, config Configuration) context.Context {
 	ctx = context.WithValue(ctx, configContextKey{}, config)
 	ctx = context.WithValue(ctx, levelContextKey{}, config.Level())
 	withLogger(ctx, config.Logger())
@@ -45,7 +45,7 @@ func getLogger(ctx context.Context) (Logger, bool) {
 
 func newLogger(ctx context.Context) (Logger, bool) {
 	// Create new Logger from the Configer, if present.
-	if config, ok := ctx.Value(configContextKey{}).(Configer); ok {
+	if config, ok := ctx.Value(configContextKey{}).(Configuration); ok {
 		log := config.Logger()
 		withLogger(ctx, log)
 

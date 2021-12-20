@@ -79,7 +79,7 @@ func Test_Context_Tags_Localized(t *testing.T) {
 		Tag(childCtx, "test1", value1)
 		Tag(childCtx, "test2", value2)
 
-		cfg, ok := childCtx.Value(configContextKey{}).(Configer)
+		cfg, ok := childCtx.Value(configContextKey{}).(Configuration)
 		assert.True(t, ok)
 		var value any
 		if value, ok = cfg.Tags()[global]; !ok || value != global {
@@ -112,7 +112,7 @@ func Test_Context_Tags_Localized(t *testing.T) {
 		Tag(childCtx, "test1", value1)
 		Tag(childCtx, "test2", value2)
 
-		cfg, ok = childCtx.Value(configContextKey{}).(Configer)
+		cfg, ok = childCtx.Value(configContextKey{}).(Configuration)
 		assert.True(t, ok)
 		if value, ok = cfg.Tags()[global]; !ok || value != global {
 			t.Error("missing global tag")
@@ -144,7 +144,7 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 	wg.Wait()
 
-	cfg, ok := ctx.Value(configContextKey{}).(Configer)
+	cfg, ok := ctx.Value(configContextKey{}).(Configuration)
 	assert.True(t, ok)
 	var value any
 	if value, ok = cfg.Tags()[global]; !ok || value != global {

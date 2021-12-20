@@ -4,19 +4,20 @@ import (
 	"io"
 	"os"
 
-	"github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
-type Level uint8
+type Level int8
 
 const (
-	LevelTrace = Level(iota)
-	LevelDebug = Level(iota)
-	LevelInfo  = Level(iota)
-	LevelWarn  = Level(iota)
-	LevelError = Level(iota)
-	LevelFatal = Level(iota)
-	LevelPanic = Level(iota)
+	LevelTrace Level = iota - 1
+	LevelDebug
+	LevelInfo
+	LevelWarn
+	LevelError
+	LevelFatal
+	LevelPanic
 )
 
 func (self Level) String() string {
@@ -31,7 +32,7 @@ func (self Level) String() string {
 	}[self]
 }
 
-type Configer interface {
+type Configuration interface {
 	Level() Level
 	// Tags are added to each Logger created.
 	// Therefore, these tags are global and must not be altered.
@@ -41,7 +42,7 @@ type Configer interface {
 }
 
 type Config struct {
-	logger     *logrus.Logger
+	logger     zerolog.Logger
 	level      Level
 	globalTags map[string]any
 }
@@ -52,7 +53,7 @@ func NewConfig(level Level) *Config {
 		globalTags: map[string]any{},
 	}
 
-	cfg.logger = newLogrusLogger(cfg)
+	cfg.logger = log.Output(os.Stdout).Level(zerolog.DebugLevel)
 
 	return cfg
 }
@@ -78,16 +79,6 @@ func (self *Config) Logger() Logger {
 	return NewLog(self)
 }
 
-func newLogrusLogger(cfg Configer) *logrus.Logger {
-	logger := logrus.New()
-	logger.Out = cfg.Out()
-
-	logrusLevel, err := logrus.ParseLevel(cfg.Level().String())
-	if err != nil {
-		logger.Fatalf("invalid logger level: %v", cfg.Level().String())
-	}
-
-	logger.Level = logrusLevel
-
-	return logger
+func newZerologLogger(cfg Configuration) zerolog.Logger {
+	return log.Output(cfg.Out()).Level(zerolog.Level(cfg.Level()))
 }
