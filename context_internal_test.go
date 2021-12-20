@@ -45,7 +45,7 @@ func newTestConfig() *testConfig {
 func Test_WithContext(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Local()
+	ctx := context.Background()
 
 	ctx = WithContext(ctx, NewConfig(LevelDebug))
 
@@ -58,7 +58,7 @@ func Test_WithContext(t *testing.T) {
 func Test_Context_Tags_Localized(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Local()
+	ctx := context.Background()
 
 	config := newTestConfig()
 

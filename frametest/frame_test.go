@@ -65,7 +65,7 @@ func Test_Log_Error_Context(t *testing.T) {
 	t.Parallel()
 
 	cfg := newTestConfig(log.LevelError)
-	ctx := context.Local()
+	ctx := context.Background()
 	ctx = log.WithContext(ctx, cfg)
 
 	log.Tag(ctx, "test1", "value1")
