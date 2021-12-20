@@ -5,18 +5,20 @@ package log
 
 import (
 	"runtime"
+	"strconv"
 	"strings"
 )
 
 func getCallerFunctionName() string {
 	// Skip package functions to get the caller of the log.
-	frame := getFrame(3).Function
-	if strings.HasPrefix(frame, "github.com/wspowell/log.") {
+	frame := getFrame(3)
+	if strings.HasPrefix(frame.Function, "github.com/wspowell/log.") {
 		// For calls from log.*(Context, *)
-		return getFrame(4).Function
+		frame := getFrame(4)
+		return frame.Function + ":" + strconv.Itoa(frame.Line)
 	}
 	// For calls from the Logger itself
-	return frame
+	return frame.Function + ":" + strconv.Itoa(frame.Line)
 }
 
 func getFrame(skipFrames int) runtime.Frame {

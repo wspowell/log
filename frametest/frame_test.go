@@ -5,9 +5,13 @@ package frametest_test
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"io"
 	"testing"
+	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/wspowell/context"
 
 	"github.com/wspowell/log"
@@ -53,11 +57,34 @@ func Test_Log_Error_NonContext(t *testing.T) {
 
 	logger.Error("error: %s", "test")
 
-	// Log minus the timestamp.
-	//expectedLog := `level=error msg="error: test" function=github.com/wspowell/log/frametest_test.Test_Log_Error_NonContext global=global test1=value1 test2=value2` + "\n"
+	type logStructure struct {
+		Level    string    `json:"level"`
+		Global   string    `json:"global"`
+		Test1    string    `json:"test1"`
+		Test2    string    `json:"test2"`
+		Function string    `json:"function"`
+		Message  string    `json:"message"`
+		Time     time.Time `json:"time"`
+	}
 
-	//fmt.Println(cfg.logCapture.String())
-	//assert.True(t, strings.HasSuffix(cfg.logCapture.String(), expectedLog), "actual: %s", cfg.logCapture.String())
+	expectedLogStructure := &logStructure{
+		Level:    "error",
+		Global:   "global",
+		Test1:    "value1",
+		Test2:    "value2",
+		Function: "github.com/wspowell/log/frametest_test.Test_Log_Error_NonContext:58",
+		Message:  "error: test",
+		Time:     time.Time{},
+	}
+
+	actualLogStructure := &logStructure{}
+	assert.Nil(t, json.Unmarshal(cfg.logCapture.Bytes(), actualLogStructure))
+
+	assert.NotEqual(t, time.Time{}, actualLogStructure.Time)
+	actualLogStructure.Time = time.Time{}
+
+	fmt.Println(cfg.logCapture.String())
+	assert.Equal(t, expectedLogStructure, actualLogStructure)
 }
 
 func Test_Log_Error_Context(t *testing.T) {
@@ -72,8 +99,32 @@ func Test_Log_Error_Context(t *testing.T) {
 
 	log.Error(ctx, "error: %s", "test")
 
-	// Log minus the timestamp.
-	//expectedLog := `level=error msg="error: test" function=github.com/wspowell/log/frametest_test.Test_Log_Error_Context global=global test1=value1 test2=value2` + "\n"
+	type logStructure struct {
+		Level    string    `json:"level"`
+		Global   string    `json:"global"`
+		Test1    string    `json:"test1"`
+		Test2    string    `json:"test2"`
+		Function string    `json:"function"`
+		Message  string    `json:"message"`
+		Time     time.Time `json:"time"`
+	}
 
-	//assert.True(t, strings.HasSuffix(cfg.logCapture.String(), expectedLog), "actual: %s", cfg.logCapture.String())
+	expectedLogStructure := &logStructure{
+		Level:    "error",
+		Global:   "global",
+		Test1:    "value1",
+		Test2:    "value2",
+		Function: "github.com/wspowell/log/frametest_test.Test_Log_Error_Context:100",
+		Message:  "error: test",
+		Time:     time.Time{},
+	}
+
+	actualLogStructure := &logStructure{}
+	assert.Nil(t, json.Unmarshal(cfg.logCapture.Bytes(), actualLogStructure))
+
+	assert.NotEqual(t, time.Time{}, actualLogStructure.Time)
+	actualLogStructure.Time = time.Time{}
+
+	fmt.Println(cfg.logCapture.String())
+	assert.Equal(t, expectedLogStructure, actualLogStructure)
 }
