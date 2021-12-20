@@ -80,5 +80,5 @@ func (self *Config) Logger() Logger {
 }
 
 func newZerologLogger(cfg Configuration) zerolog.Logger {
-	return log.Output(cfg.Out()).Level(zerolog.Level(cfg.Level()))
+	return log.With().Fields(cfg.Tags()).Logger().Output(cfg.Out()).Level(zerolog.Level(cfg.Level()))
 }

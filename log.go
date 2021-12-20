@@ -57,6 +57,9 @@ func NewLog(config Configuration) Log {
 
 func (self Log) Tag(name string, value any) {
 	self.tags[name] = value
+	self.logger = self.logger.With().Fields(map[string]any{
+		name: value,
+	}).Logger()
 }
 
 // Tags cloned value.
