@@ -7,6 +7,21 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// DefaultLogger returns a new default logger that logs at info level.
+func DefaultLogger() *Log {
+	return NewLog(NewConfig())
+}
+
+// DebugLogger returns a new default logger that logs at debug level.
+func DebugLogger() *Log {
+	return NewLog(NewConfig().WithLevel(LevelDebug))
+}
+
+// ErrorLogger returns a new default logger that logs at error level.
+func ErrorLogger() *Log {
+	return NewLog(NewConfig().WithLevel(LevelDebug))
+}
+
 type Logger interface {
 	Tag(name string, value any)
 	Tags() map[string]any
