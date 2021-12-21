@@ -27,15 +27,15 @@ func Test_Log_GlobalTags_race(t *testing.T) {
 func Test_Log_Tags(t *testing.T) {
 	t.Parallel()
 
-	cfg := newTestConfig()
-	cfg.Tags()["global"] = "global"
+	config := newTestConfig()
+	config.Tags()["global"] = "global"
 
-	log := NewLog(cfg)
+	log := NewLog(config)
 
 	log.Tag("test1", "value1")
 	log.Tag("test2", "value2")
 
-	if value, ok := log.cfg.Tags()["global"]; !ok || value != "global" {
+	if value, ok := log.Tags()["global"]; !ok || value != "global" {
 		t.Error("missing global tag")
 	}
 
@@ -51,7 +51,7 @@ func Test_Log_Tags(t *testing.T) {
 func Test_Log_Tags_nil(t *testing.T) {
 	t.Parallel()
 
-	log := NewLog(NewConfig(LevelError))
+	log := NewLog(NewConfig().WithLevel(LevelError))
 
 	log.Tag("test1", "value1")
 	log.Tag("test2", "value2")

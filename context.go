@@ -10,10 +10,10 @@ type logContextKey struct{}
 
 // WithConfig adds a Configer to the Context which enables new Loggers to be created.
 // This creates a new Logger from the Configer and adds it as a local Context value.
-func WithContext(ctx context.Context, config Configuration) context.Context {
+func WithContext(ctx context.Context, config LoggerConfig) context.Context {
 	ctx = context.WithValue(ctx, configContextKey{}, config)
 	ctx = context.WithValue(ctx, levelContextKey{}, config.Level())
-	withLogger(ctx, config.Logger())
+	withLogger(ctx, NewLog(config))
 
 	return ctx
 }
@@ -45,8 +45,8 @@ func getLogger(ctx context.Context) (Logger, bool) {
 
 func newLogger(ctx context.Context) (Logger, bool) {
 	// Create new Logger from the Configer, if present.
-	if config, ok := ctx.Value(configContextKey{}).(Configuration); ok {
-		log := config.Logger()
+	if config, ok := ctx.Value(configContextKey{}).(LoggerConfig); ok {
+		log := NewLog(config)
 		withLogger(ctx, log)
 
 		return log, true
@@ -69,51 +69,93 @@ func Tags(ctx context.Context) map[string]any {
 	return nil
 }
 
-func Printf(ctx context.Context, format string, v ...any) {
+func Printf(ctx context.Context, format string, values ...any) {
 	// Log at INFO to match logrus.
 	if log, ok := fromContext(ctx, LevelInfo); ok {
-		log.Printf(format, v...)
+		// perf: copy the values so that the compiler does not allocate on the heap. This prevents an allocation happening even
+		//       when the log level is too low and the log function is never called.
+		//       See: https://stackoverflow.com/questions/27788813/variadic-functions-causing-unnecessary-heap-allocations-in-go
+		valuesCopy := make([]any, len(values))
+		copy(valuesCopy, values)
+
+		log.Printf(format, valuesCopy...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Trace(ctx context.Context, format string, v ...any) {
+func Trace(ctx context.Context, format string, values ...any) {
 	if log, ok := fromContext(ctx, LevelTrace); ok {
-		log.Trace(format, v...)
+		// perf: copy the values so that the compiler does not allocate on the heap. This prevents an allocation happening even
+		//       when the log level is too low and the log function is never called.
+		//       See: https://stackoverflow.com/questions/27788813/variadic-functions-causing-unnecessary-heap-allocations-in-go
+		valuesCopy := make([]any, len(values))
+		copy(valuesCopy, values)
+
+		log.Trace(format, valuesCopy...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Debug(ctx context.Context, format string, v ...any) {
+func Debug(ctx context.Context, format string, values ...any) {
 	if log, ok := fromContext(ctx, LevelDebug); ok {
-		log.Debug(format, v...)
+		// perf: copy the values so that the compiler does not allocate on the heap. This prevents an allocation happening even
+		//       when the log level is too low and the log function is never called.
+		//       See: https://stackoverflow.com/questions/27788813/variadic-functions-causing-unnecessary-heap-allocations-in-go
+		valuesCopy := make([]any, len(values))
+		copy(valuesCopy, values)
+
+		log.Debug(format, valuesCopy...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Info(ctx context.Context, format string, v ...any) {
+func Info(ctx context.Context, format string, values ...any) {
 	if log, ok := fromContext(ctx, LevelInfo); ok {
-		log.Info(format, v...)
+		// perf: copy the values so that the compiler does not allocate on the heap. This prevents an allocation happening even
+		//       when the log level is too low and the log function is never called.
+		//       See: https://stackoverflow.com/questions/27788813/variadic-functions-causing-unnecessary-heap-allocations-in-go
+		valuesCopy := make([]any, len(values))
+		copy(valuesCopy, values)
+
+		log.Info(format, valuesCopy...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Warn(ctx context.Context, format string, v ...any) {
+func Warn(ctx context.Context, format string, values ...any) {
 	if log, ok := fromContext(ctx, LevelWarn); ok {
-		log.Warn(format, v...)
+		// perf: copy the values so that the compiler does not allocate on the heap. This prevents an allocation happening even
+		//       when the log level is too low and the log function is never called.
+		//       See: https://stackoverflow.com/questions/27788813/variadic-functions-causing-unnecessary-heap-allocations-in-go
+		valuesCopy := make([]any, len(values))
+		copy(valuesCopy, values)
+
+		log.Warn(format, valuesCopy...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Error(ctx context.Context, format string, v ...any) {
+func Error(ctx context.Context, format string, values ...any) {
 	if log, ok := fromContext(ctx, LevelError); ok {
-		log.Error(format, v...)
+		// perf: copy the values so that the compiler does not allocate on the heap. This prevents an allocation happening even
+		//       when the log level is too low and the log function is never called.
+		//       See: https://stackoverflow.com/questions/27788813/variadic-functions-causing-unnecessary-heap-allocations-in-go
+		valuesCopy := make([]any, len(values))
+		copy(valuesCopy, values)
+
+		log.Error(format, valuesCopy...)
 	}
 }
 
 // nolint:goprintffuncname // reason: keep in line with logger function naming
-func Fatal(ctx context.Context, format string, v ...any) {
+func Fatal(ctx context.Context, format string, values ...any) {
 	if log, ok := fromContext(ctx, LevelFatal); ok {
-		log.Fatal(format, v...)
+		// perf: copy the values so that the compiler does not allocate on the heap. This prevents an allocation happening even
+		//       when the log level is too low and the log function is never called.
+		//       See: https://stackoverflow.com/questions/27788813/variadic-functions-causing-unnecessary-heap-allocations-in-go
+		valuesCopy := make([]any, len(values))
+		copy(valuesCopy, values)
+
+		log.Fatal(format, valuesCopy...)
 	}
 }

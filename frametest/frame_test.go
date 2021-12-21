@@ -18,16 +18,13 @@ import (
 )
 
 type testConfig struct {
-	*log.Config
-
+	level      log.Level
 	logCapture *bytes.Buffer
 }
 
 func newTestConfig(level log.Level) *testConfig {
-	config := log.NewConfig(level)
-
 	return &testConfig{
-		Config:     config,
+		level:      level,
 		logCapture: bytes.NewBuffer([]byte{}),
 	}
 }
@@ -38,12 +35,12 @@ func (self *testConfig) Tags() map[string]any {
 	}
 }
 
-func (self *testConfig) Out() io.Writer {
+func (self *testConfig) Output() io.Writer {
 	return self.logCapture
 }
 
-func (self *testConfig) Logger() log.Logger {
-	return log.NewLog(self)
+func (self *testConfig) Level() log.Level {
+	return self.level
 }
 
 func Test_Log_Error_NonContext(t *testing.T) {
@@ -72,7 +69,7 @@ func Test_Log_Error_NonContext(t *testing.T) {
 		Global:   "global",
 		Test1:    "value1",
 		Test2:    "value2",
-		Function: "github.com/wspowell/log/frametest_test.Test_Log_Error_NonContext:58",
+		Function: "github.com/wspowell/log/frametest_test.Test_Log_Error_NonContext:55",
 		Message:  "error: test",
 		Time:     time.Time{},
 	}
@@ -114,7 +111,7 @@ func Test_Log_Error_Context(t *testing.T) {
 		Global:   "global",
 		Test1:    "value1",
 		Test2:    "value2",
-		Function: "github.com/wspowell/log/frametest_test.Test_Log_Error_Context:100",
+		Function: "github.com/wspowell/log/frametest_test.Test_Log_Error_Context:97",
 		Message:  "error: test",
 		Time:     time.Time{},
 	}

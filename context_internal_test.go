@@ -16,9 +16,7 @@ const (
 	value2 = "value2"
 )
 
-type testConfig struct {
-	*Config
-}
+type testConfig struct{}
 
 func (self *testConfig) Tags() map[string]any {
 	return map[string]any{
@@ -26,20 +24,16 @@ func (self *testConfig) Tags() map[string]any {
 	}
 }
 
-func (self *testConfig) Out() io.Writer {
+func (self *testConfig) Output() io.Writer {
 	return io.Discard
 }
 
-func (self *testConfig) Logger() Logger {
-	return NewLog(self)
+func (self *testConfig) Level() Level {
+	return LevelError
 }
 
 func newTestConfig() *testConfig {
-	config := NewConfig(LevelError)
-
-	return &testConfig{
-		Config: config,
-	}
+	return &testConfig{}
 }
 
 func Test_WithContext(t *testing.T) {
@@ -47,12 +41,12 @@ func Test_WithContext(t *testing.T) {
 
 	ctx := context.Background()
 
-	ctx = WithContext(ctx, NewConfig(LevelDebug))
+	ctx = WithContext(ctx, NewConfig().WithLevel(LevelDebug))
 
 	log, ok := fromContext(ctx, LevelDebug)
 	assert.True(t, ok)
 	assert.NotNil(t, log)
-	assert.IsType(t, Log{}, log)
+	assert.IsType(t, &Log{}, log)
 }
 
 func Test_Context_Tags_Localized(t *testing.T) {
@@ -79,7 +73,7 @@ func Test_Context_Tags_Localized(t *testing.T) {
 		Tag(childCtx, "test1", value1)
 		Tag(childCtx, "test2", value2)
 
-		cfg, ok := childCtx.Value(configContextKey{}).(Configuration)
+		cfg, ok := childCtx.Value(configContextKey{}).(LoggerConfig)
 		assert.True(t, ok)
 		var value any
 		if value, ok = cfg.Tags()[global]; !ok || value != global {
@@ -93,8 +87,8 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 		log, ok := fromContext(childCtx, LevelError)
 		assert.True(t, ok)
-		if value, ok = log.Tags()[global]; ok || value == global {
-			t.Error("global tag should not exist")
+		if value, ok = log.Tags()[global]; !ok || value != global {
+			t.Error("missing global tag")
 		}
 		if value, ok = log.Tags()[parent]; !ok || value != parent {
 			t.Error("missing parent tag")
@@ -112,7 +106,7 @@ func Test_Context_Tags_Localized(t *testing.T) {
 		Tag(childCtx, "test1", value1)
 		Tag(childCtx, "test2", value2)
 
-		cfg, ok = childCtx.Value(configContextKey{}).(Configuration)
+		cfg, ok = childCtx.Value(configContextKey{}).(LoggerConfig)
 		assert.True(t, ok)
 		if value, ok = cfg.Tags()[global]; !ok || value != global {
 			t.Error("missing global tag")
@@ -128,8 +122,8 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 		log, ok = fromContext(childCtx, LevelError)
 		assert.True(t, ok)
-		if value, ok := log.Tags()[global]; ok || value == global {
-			t.Error("global tag should not exist")
+		if value, ok := log.Tags()[global]; !ok || value != global {
+			t.Error("missing global tag")
 		}
 		if value, ok := log.Tags()[parent]; ok || value == parent {
 			t.Error("parent tag should not exist")
@@ -144,7 +138,7 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 	wg.Wait()
 
-	cfg, ok := ctx.Value(configContextKey{}).(Configuration)
+	cfg, ok := ctx.Value(configContextKey{}).(LoggerConfig)
 	assert.True(t, ok)
 	var value any
 	if value, ok = cfg.Tags()[global]; !ok || value != global {
@@ -153,8 +147,8 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 	log, ok := fromContext(ctx, LevelError)
 	assert.True(t, ok)
-	if value, ok := log.Tags()[global]; ok || value == global {
-		t.Error("global tag should not exist")
+	if value, ok := log.Tags()[global]; !ok || value != global {
+		t.Error("missing global tag")
 	}
 	if value, ok := log.Tags()[parent]; !ok || value != parent {
 		t.Error("missing parent tag")

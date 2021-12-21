@@ -2,7 +2,10 @@ package log
 
 import (
 	"fmt"
+	"io"
 	"testing"
+
+	"github.com/rs/zerolog/log"
 )
 
 func Benchmark_debug_at_error_level(b *testing.B) {
@@ -54,8 +57,22 @@ func Benchmark_error_at_error_level_1000x(b *testing.B) {
 	}
 }
 
+func Benchmark_error_at_error_level_1000x_zerolog(b *testing.B) {
+	logger := log.Output(io.Discard).With().Fields(map[string]interface{}{
+		"global": "global",
+		"test1":  "value1",
+		"test2":  "value2",
+	}).Logger()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for k := 0; k < 1000; k++ {
+			logger.Error().Msgf("hello: %s", "world")
+		}
+	}
+}
+
 func Benchmark_NewLog(b *testing.B) {
-	config := NewConfig(LevelError)
+	config := NewConfig().WithLevel(LevelError)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -64,7 +81,7 @@ func Benchmark_NewLog(b *testing.B) {
 }
 
 func Benchmark_ConfigCopy_NewLog(b *testing.B) {
-	config := NewConfig(LevelError)
+	config := NewConfig().WithLevel(LevelError)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

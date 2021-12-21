@@ -62,7 +62,7 @@ func Benchmark_Context_error_at_error_level_1000x(b *testing.B) {
 }
 
 func Benchmark_Context_WithContext(b *testing.B) {
-	config := NewConfig(LevelError)
+	config := NewConfig().WithLevel(LevelError)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
