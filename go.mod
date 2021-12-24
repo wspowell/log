@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/rs/zerolog v1.26.1
 	github.com/stretchr/testify v1.7.0
-	github.com/wspowell/context v0.0.7
+	github.com/wspowell/context v0.0.8
 )
 
 require (

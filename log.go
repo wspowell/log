@@ -43,7 +43,7 @@ type LoggerConfig interface {
 var _ Logger = (*Log)(nil)
 
 type Log struct {
-	logger zerolog.Logger
+	logger zerolog.Context
 	tags   map[string]any
 	// Perf: Copying the level into the struct performed better.
 	level Level
@@ -51,7 +51,7 @@ type Log struct {
 
 func NewLog(config LoggerConfig) *Log {
 	return &Log{
-		logger: log.Output(config.Output()).Level(zerolog.Level(config.Level())).With().Fields(config.Tags()).Logger(),
+		logger: log.Output(config.Output()).Level(zerolog.Level(config.Level())).With().Fields(config.Tags()),
 		tags:   config.Tags(),
 		level:  config.Level(),
 	}
@@ -59,9 +59,7 @@ func NewLog(config LoggerConfig) *Log {
 
 func (self *Log) Tag(name string, value any) {
 	self.tags[name] = value
-	self.logger = self.logger.With().Fields(map[string]any{
-		name: value,
-	}).Logger()
+	self.logger = self.logger.Fields([]any{name, value})
 }
 
 // Tags cloned value.

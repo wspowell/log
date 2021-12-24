@@ -89,3 +89,12 @@ func Benchmark_ConfigCopy_NewLog(b *testing.B) {
 		NewLog(cfg)
 	}
 }
+
+func Benchmark_Tag(b *testing.B) {
+	log := NewLog(newTestConfig())
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		log.Tag("tag", "value")
+	}
+}

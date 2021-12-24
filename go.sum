@@ -12,8 +12,8 @@ github.com/rs/zerolog v1.26.1/go.mod h1:/wSSJWX7lVrsOwlbyTRSOJvqRlc+WjWlfes+CiJ+
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/wspowell/context v0.0.7 h1:KwyIg8iAwcOmDe2uXy3hD6rzz6I34UvJEhFw7cJujvw=
-github.com/wspowell/context v0.0.7/go.mod h1:W6RDwV8mMS7zAnXiGZG4W4OxpJjLicUzwLrINl0WrjM=
+github.com/wspowell/context v0.0.8 h1:KnpuLcS9/FlCL/ntWBraVRloSOSxMJIj9goqIpB4zUE=
+github.com/wspowell/context v0.0.8/go.mod h1:W6RDwV8mMS7zAnXiGZG4W4OxpJjLicUzwLrINl0WrjM=
 github.com/wspowell/errors v0.3.0 h1:wqAJi1OhwrzcGq+tudNfFbpFtlsE7V0cWagSG6ikEao=
 github.com/wspowell/errors v0.3.0/go.mod h1:WysncKKtZuakAtgQTLBhb9Sq96YNLsEmtCNJ7xeOaBk=
 github.com/yuin/goldmark v1.4.0/go.mod h1:mwnBkeHKe2W/ZEtQ+71ViKU8L12m81fl3OWwC1Zlc8k=

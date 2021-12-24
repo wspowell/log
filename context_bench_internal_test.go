@@ -69,3 +69,13 @@ func Benchmark_Context_WithContext(b *testing.B) {
 		WithContext(context.Background(), config)
 	}
 }
+
+func Benchmark_Context_Tag(b *testing.B) {
+	ctx := context.Background()
+	ctx = WithContext(ctx, newTestConfig())
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Tag(ctx, "tag", "value")
+	}
+}
