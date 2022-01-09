@@ -24,7 +24,6 @@ func ErrorLogger() *Log {
 
 type Logger interface {
 	Tag(name string, value any)
-	Tags() map[string]any
 	Printf(format string, values ...any)
 	Trace(format string, values ...any)
 	Debug(format string, values ...any)
@@ -43,34 +42,28 @@ type LoggerConfig interface {
 var _ Logger = (*Log)(nil)
 
 type Log struct {
-	logger zerolog.Context
-	tags   map[string]any
+	output     io.Writer
+	globalTags map[string]any
+
+	logger zerolog.Logger
+	// Slice of key/value pairs in sequence.
+	tags []any
 	// Perf: Copying the level into the struct performed better.
 	level Level
 }
 
 func NewLog(config LoggerConfig) *Log {
 	return &Log{
-		logger: log.Output(config.Output()).Level(zerolog.Level(config.Level())).With().Fields(config.Tags()),
-		tags:   config.Tags(),
-		level:  config.Level(),
+		output:     config.Output(),
+		globalTags: config.Tags(),
+		logger:     log.Output(config.Output()).With().Fields(config.Tags()).Logger(),
+		tags:       []any{},
+		level:      config.Level(),
 	}
 }
 
 func (self *Log) Tag(name string, value any) {
-	self.tags[name] = value
-	self.logger = self.logger.Fields([]any{name, value})
-}
-
-// Tags cloned value.
-// Returns tags for the Logger only, not the Configer.
-func (self *Log) Tags() map[string]any {
-	clone := make(map[string]any, len(self.tags))
-	for key, value := range self.tags {
-		clone[key] = value
-	}
-
-	return clone
+	self.tags = append(self.tags, name, value)
 }
 
 func (self *Log) Printf(format string, values ...any) {
@@ -133,9 +126,17 @@ func (self *Log) Panic(format string, values ...any) {
 // This will copy all log tags on to the localized Log value.
 // If a fresh Logger is desired, use WithContext() to override.
 func (self *Log) Localize() any {
-	return &Log{
-		logger: self.logger,
-		tags:   self.Tags(),
-		level:  self.level,
+	newLog := &Log{
+		output:     self.output,
+		globalTags: self.globalTags,
+		logger:     log.Output(self.output).With().Fields(self.globalTags).Logger(),
+		tags:       make([]any, 0, len(self.tags)),
+		level:      self.level,
 	}
+
+	for i := 0; i < len(self.tags); i += 2 {
+		newLog.tags = append(newLog.tags, self.tags[i].(string), self.tags[i+1])
+	}
+
+	return newLog
 }

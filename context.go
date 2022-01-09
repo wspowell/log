@@ -8,12 +8,13 @@ type configContextKey struct{}
 type levelContextKey struct{}
 type logContextKey struct{}
 
-// WithConfig adds a Configer to the Context which enables new Loggers to be created.
-// This creates a new Logger from the Configer and adds it as a local Context value.
+// WithConfig adds a LoggerConfig to the Context which enables new Loggers to be created.
+// This creates a new Logger from the LoggerConfig and adds it as a local Context value.
 func WithContext(ctx context.Context, config LoggerConfig) context.Context {
 	ctx = context.WithValue(ctx, configContextKey{}, config)
 	ctx = context.WithValue(ctx, levelContextKey{}, config.Level())
-	withLogger(ctx, NewLog(config))
+	log := NewLog(config)
+	withLogger(ctx, log)
 
 	return ctx
 }
@@ -44,7 +45,7 @@ func getLogger(ctx context.Context) (Logger, bool) {
 }
 
 func newLogger(ctx context.Context) (Logger, bool) {
-	// Create new Logger from the Configer, if present.
+	// Create new Logger from the LoggerConfig, if present.
 	if config, ok := ctx.Value(configContextKey{}).(LoggerConfig); ok {
 		log := NewLog(config)
 		withLogger(ctx, log)
@@ -59,14 +60,6 @@ func Tag(ctx context.Context, name string, value any) {
 	if log, ok := fromContext(ctx, LevelPanic); ok {
 		log.Tag(name, value)
 	}
-}
-
-func Tags(ctx context.Context) map[string]any {
-	if log, ok := fromContext(ctx, LevelPanic); ok {
-		return log.Tags()
-	}
-
-	return nil
 }
 
 func Printf(ctx context.Context, format string, values ...any) {

@@ -60,7 +60,8 @@ func Test_Context_Tags_Localized(t *testing.T) {
 
 	Tag(ctx, "parent", "parent")
 
-	parentTags := Tags(ctx)
+	logger, _ := getLogger(ctx)
+	parentTags := append([]any{}, logger.(*Log).tags...)
 
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -80,23 +81,22 @@ func Test_Context_Tags_Localized(t *testing.T) {
 			t.Error("missing global tag")
 		}
 
-		childTags := Tags(childCtx)
+		logger, _ := getLogger(childCtx)
+		childTags := append([]any{}, logger.(*Log).tags...)
 		if &childTags == &parentTags {
 			t.Error("child tags must not address the same parent tags")
 		}
 
-		log, ok := fromContext(childCtx, LevelError)
-		assert.True(t, ok)
-		if value, ok = log.Tags()[global]; !ok || value != global {
-			t.Error("missing global tag")
+		if value, ok = tagsContainKey(childTags, global); ok || value == global {
+			t.Error("child tags must not include global tag")
 		}
-		if value, ok = log.Tags()[parent]; !ok || value != parent {
+		if value, ok = tagsContainKey(childTags, parent); !ok || value != parent {
 			t.Error("missing parent tag")
 		}
-		if value, ok = log.Tags()["test1"]; !ok || value != value1 {
+		if value, ok = tagsContainKey(childTags, "test1"); !ok || value != value1 {
 			t.Error("missing test1 tag")
 		}
-		if value, ok = log.Tags()["test2"]; !ok || value != value2 {
+		if value, ok = tagsContainKey(childTags, "test2"); !ok || value != value2 {
 			t.Error("missing test2 tag")
 		}
 
@@ -112,7 +112,8 @@ func Test_Context_Tags_Localized(t *testing.T) {
 			t.Error("missing global tag")
 		}
 
-		ovrrideTags := Tags(childCtx)
+		logger, _ = getLogger(childCtx)
+		ovrrideTags := append([]any{}, logger.(*Log).tags...)
 		if &ovrrideTags == &parentTags {
 			t.Error("override tags must not address the same parent tags")
 		}
@@ -120,18 +121,17 @@ func Test_Context_Tags_Localized(t *testing.T) {
 			t.Error("override tags must not address the same child tags")
 		}
 
-		log, ok = fromContext(childCtx, LevelError)
 		assert.True(t, ok)
-		if value, ok := log.Tags()[global]; !ok || value != global {
-			t.Error("missing global tag")
+		if value, ok := tagsContainKey(childTags, global); ok || value == global {
+			t.Error("child tags must not include global tag")
 		}
-		if value, ok := log.Tags()[parent]; ok || value == parent {
-			t.Error("parent tag should not exist")
+		if value, ok := tagsContainKey(childTags, parent); !ok || value != parent {
+			t.Error("parent tag should exist")
 		}
-		if value, ok := log.Tags()["test1"]; !ok || value != value1 {
+		if value, ok := tagsContainKey(childTags, "test1"); !ok || value != value1 {
 			t.Error("missing test1 tag")
 		}
-		if value, ok := log.Tags()["test2"]; !ok || value != value2 {
+		if value, ok := tagsContainKey(childTags, "test2"); !ok || value != value2 {
 			t.Error("missing test2 tag")
 		}
 	}(ctx)
@@ -145,18 +145,25 @@ func Test_Context_Tags_Localized(t *testing.T) {
 		t.Error("missing global tag")
 	}
 
-	log, ok := fromContext(ctx, LevelError)
-	assert.True(t, ok)
-	if value, ok := log.Tags()[global]; !ok || value != global {
-		t.Error("missing global tag")
+	if value, ok := tagsContainKey(parentTags, global); ok || value == global {
+		t.Error("parent tags should not have global tag")
 	}
-	if value, ok := log.Tags()[parent]; !ok || value != parent {
+	if value, ok := tagsContainKey(parentTags, parent); !ok || value != parent {
 		t.Error("missing parent tag")
 	}
-	if value, ok := log.Tags()["test1"]; ok || value == value1 {
+	if value, ok := tagsContainKey(parentTags, "test1"); ok || value == value1 {
 		t.Error("test1 tag should not exist")
 	}
-	if value, ok := log.Tags()["test2"]; ok || value == value2 {
+	if value, ok := tagsContainKey(parentTags, "test2"); ok || value == value2 {
 		t.Error("test2 tag should not exist")
 	}
+}
+
+func tagsContainKey(tags []any, key string) (interface{}, bool) {
+	for i := 0; i < len(tags); i += 2 {
+		if tags[i].(string) == key {
+			return tags[i+1], true
+		}
+	}
+	return nil, false
 }
