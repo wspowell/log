@@ -40,43 +40,34 @@ type Config struct {
 }
 
 // NewConfig with defaults.
-func NewConfig() Config {
-	return Config{
+func NewConfig() *Config {
+	return &Config{
 		level:      LevelInfo,
 		globalTags: map[string]any{},
 		output:     os.Stdout,
 	}
 }
 
-func (self Config) WithLevel(level Level) Config {
-	return Config{
-		level:      level,
-		globalTags: self.Tags(),
-		output:     self.output,
-	}
+func (self *Config) WithLevel(level Level) *Config {
+	self.level = level
+	return self
 }
 
-func (self Config) WithTags(tags map[string]any) Config {
-	return Config{
-		level:      self.level,
-		globalTags: tags,
-		output:     self.output,
-	}
+func (self *Config) WithTags(tags map[string]any) *Config {
+	self.globalTags = tags
+	return self
 }
 
-func (self Config) WithOutput(output io.Writer) Config {
-	return Config{
-		level:      self.level,
-		globalTags: self.Tags(),
-		output:     output,
-	}
+func (self *Config) WithOutput(output io.Writer) *Config {
+	self.output = output
+	return self
 }
 
-func (self Config) Level() Level {
+func (self *Config) Level() Level {
 	return self.level
 }
 
-func (self Config) Tags() map[string]any {
+func (self *Config) Tags() map[string]any {
 	clone := make(map[string]any, len(self.globalTags))
 	for key, value := range self.globalTags {
 		clone[key] = value
@@ -85,14 +76,6 @@ func (self Config) Tags() map[string]any {
 	return clone
 }
 
-func (self Config) Output() io.Writer {
+func (self *Config) Output() io.Writer {
 	return os.Stdout
-}
-
-func (self Config) Copy() Config {
-	return Config{
-		level:      self.level,
-		globalTags: self.Tags(),
-		output:     self.output,
-	}
 }
